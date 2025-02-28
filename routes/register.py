@@ -11,6 +11,23 @@ RECAPTCHA_SECRET_KEY = "6Lc1ouUqAAAAAIRcLgWhIN3_7CWhi3iTQPtY0Rdm"
 # For v3, we need to set a threshold (0.0 to 1.0, where 1.0 is very likely human)
 RECAPTCHA_SCORE_THRESHOLD = 0.5
 
+# Requirement functions
+def containsUpper(password):
+    for char in password:
+        if('A' <= char <= 'Z'):
+            return True
+    return False
+def containsLower(password):
+    for char in password:
+        if('a' <= char <= 'z'):
+            return True
+    return False
+def containsDigit(password):
+    for char in password:
+        if(char.isdigit()):
+            return True
+    return False
+
 @register_bp.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -18,6 +35,15 @@ def register():
         password = request.form.get("password")
         passwordVerify = request.form.get("passwordVerify")
 
+        # Check if password meets requirements
+        if(not (len(password) <= 8 and 
+            containsUpper(password) and 
+            containsLower(password) and 
+            containsDigit(password))):
+            flash("Password must meet requirements", "error")
+            return redirect(url_for("register.register"))
+
+        # Check if passwords match
         if(password != passwordVerify):
             flash("Passwords do not match. Please try again.", "error")
             return redirect(url_for("register.register"))

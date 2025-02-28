@@ -91,8 +91,8 @@ def admin():
                 })
         
         try:
-            query = f"SELECT * FROM users WHERE username = '{username}' AND password_hash = '{password}'"
-            result = db.session.execute(query)
+            query = f"SELECT * FROM users WHERE username = ? AND password_hash = ?"
+            result = db.session.execute(query, (username, password))
             user_data = result.fetchone()
             
             if user_data:

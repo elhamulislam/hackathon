@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <title>Register - BokoHacks</title>
 </head>
 <body>
@@ -38,11 +39,7 @@
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" placeholder="Create a password" required>
         
-        <label for="captcha">Enter CAPTCHA:</label>
-        <div class="captcha-box">
-          <img src="{{ url_for('captcha.get_captcha') }}" alt="CAPTCHA" class="captcha-image">
-        </div>
-        <input type="text" id="captcha" name="captcha" placeholder="Enter the text shown above" required>
+        <div class="g-recaptcha" data-sitekey="6Lc1ouUqAAAAAOd1CDL4QyENyZugHilDrCclufau"></div>
         
         <button type="submit">Register</button>
       </form>
@@ -52,6 +49,23 @@
   <footer>
     <p>&copy; 2025 BokoHacks | All Rights Reserved</p>
   </footer>
+
+  <script>
+    // Execute reCAPTCHA when form is submitted
+    document.getElementById('register-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+      
+      grecaptcha.ready(function() {
+        grecaptcha.execute('6Lc1ouUqAAAAAOd1CDL4QyENyZugHilDrCclufau', {action: 'register'})
+          .then(function(token) {
+            // Add token to form
+            document.getElementById('g-recaptcha-response').value = token;
+            // Submit form
+            document.getElementById('register-form').submit();
+          });
+      });
+    });
+  </script>
 
   <style>
     .captcha-box {

@@ -61,7 +61,15 @@ def upload_file():
         print("No file part in request")
         return jsonify({'success': False, 'error': 'No file part'}), 400
     
-    if file:  
+    if file: 
+        ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "pdf", "gif"}
+
+        def allowed_file(filename):
+            return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS  
+        
+        if(not allowed_file(file.filename)):
+            return jsonify({'sucess': False, 'error': "Invalid File Type"})
+        
         filename = secure_filename(file.filename)
         file_path = os.path.join(UPLOAD_FOLDER, filename)
         print(f"File path: {file_path}")

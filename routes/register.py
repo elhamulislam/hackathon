@@ -30,21 +30,6 @@ def containsDigit(password):
             return True
     return False
 
-# def logAction(username, action, message):
-#     log = {
-#         "user": username,
-#         "time": strftime("%Y-%m-%d %H:%M:%S", gmtime()),
-#         "action": action,
-#         "message": message
-#     }
-#     with open('ActionLogs.json', 'r') as file:
-#         data = json.load(file)
-#     data.append(log)
-
-#     with open('ActionLogs.json', 'w') as file:
-#         json.dump(log, file, indent=4)
-#         file.close()
-
 def logAction(username, action, message):
     log = {
         "user": username,

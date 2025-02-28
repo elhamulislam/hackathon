@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, jsonify, session, send_fi
 from extensions import db
 from models.user import User
 from models.file import File
+from routes.register import logAction
 import os
 from werkzeug.utils import secure_filename
 
@@ -56,7 +57,9 @@ def upload_file():
 
     file = request.files.get('file')
     print(f"Received file: {file}")
-    
+
+    logAction(current_user.username, "Files", "File Received")
+
     if not file:
         print("No file part in request")
         return jsonify({'success': False, 'error': 'No file part'}), 400
@@ -68,6 +71,7 @@ def upload_file():
             return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS  
         
         if(not allowed_file(file.filename)):
+            logAction(current_user.username, "Files", "Invalid File Type")
             return jsonify({'sucess': False, 'error': "Invalid File Type"})
         
         filename = secure_filename(file.filename)
@@ -86,6 +90,8 @@ def upload_file():
             db.session.add(new_file)
             db.session.commit()
             print(f"File record saved to database with ID: {new_file.id}")
+
+            logAction(current_user.username, "Files", "File Uploaded to Database")
 
             return jsonify({
                 'success': True,
@@ -134,7 +140,9 @@ def delete_file(file_id):
             print(f"File deleted from filesystem: {file_path}")
         else:
             print(f"Warning: File not found on filesystem: {file_path}")
-            
+        
+        logAction(current_user.username, "Files", "File Deleted")
+
         return jsonify({'success': True, 'message': 'File deleted successfully'})
     except Exception as e:
         print(f"Error deleting file: {str(e)}")
@@ -170,6 +178,8 @@ def download_file(file_id):
         if os.path.exists(file.file_path):
             print(f"Sending file: {file.file_path}")
             
+            logAction(current_user.username, "Files", "File Downloaded")
+
             return send_from_directory(
                 directory,
                 filename,

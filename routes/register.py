@@ -2,7 +2,9 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for,
 from models.user import User
 from extensions import db
 import requests
+
 import json
+from time import gmtime, strftime
 
 register_bp = Blueprint("register", __name__)
 
@@ -28,6 +30,43 @@ def containsDigit(password):
             return True
     return False
 
+# def logAction(username, action, message):
+#     log = {
+#         "user": username,
+#         "time": strftime("%Y-%m-%d %H:%M:%S", gmtime()),
+#         "action": action,
+#         "message": message
+#     }
+#     with open('ActionLogs.json', 'r') as file:
+#         data = json.load(file)
+#     data.append(log)
+
+#     with open('ActionLogs.json', 'w') as file:
+#         json.dump(log, file, indent=4)
+#         file.close()
+
+def logAction(username, action, message):
+    log = {
+        "user": username,
+        "time": strftime("%Y-%m-%d %H:%M:%S", gmtime()),
+        "action": action,
+        "message": message
+    }
+
+    try:
+        with open('ActionLogs.json', 'r') as file:
+            data = json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        data = {}
+
+    if 'logs' not in data:
+        data['logs'] = []
+    
+    data['logs'].append(log)
+
+    with open('ActionLogs.json', 'w') as file:
+        json.dump(data, file, indent=4)
+        
 @register_bp.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -36,21 +75,28 @@ def register():
         passwordVerify = request.form.get("passwordVerify")
 
         # Check if password meets requirements
-        if(not (len(password) <= 8 and 
+        if(not (len(password) >= 8 and 
             containsUpper(password) and 
             containsLower(password) and 
             containsDigit(password))):
+
+            logAction(username, "Registration", "Invalid Password")
+
             flash("Password must meet requirements", "error")
             return redirect(url_for("register.register"))
 
         # Check if passwords match
         if(password != passwordVerify):
+            logAction(username, "Registration", "Passwords didn't match")
+
             flash("Passwords do not match. Please try again.", "error")
             return redirect(url_for("register.register"))
         
         recaptcha_response = request.form.get("g-recaptcha-response")
 
         if not recaptcha_response:
+            logAction(username, "Registration", "reCAPTCHA not complete")
+
             flash("Please complete the reCAPTCHA challenge.", "error")
             return redirect(url_for("register.register"))
         
@@ -63,11 +109,15 @@ def register():
         result = r.json()
         
         if not result.get('success'):
+            logAction(username, "Registration", "reCAPTCHA Failed")
+
             flash("reCAPTCHA verification failed. Please try again.", "error")
             return redirect(url_for("register.register"))
 
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:
+            logAction(username, "Registration", "Username already exists")
+
             flash("Username already exists. Please choose a different one.", "error")
             return redirect(url_for("register.register"))
 
@@ -76,6 +126,7 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
+        logAction(username, "Registration", "Successful!")
         flash("Registration successful! You can now log in.", "success")
         return redirect(url_for("login.login"))
 

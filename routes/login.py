@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, session, url_for
 from models.user import User
 from extensions import db
+from routes.register import logAction
 
 login_bp = Blueprint("login", __name__)
 
@@ -12,10 +13,14 @@ def login():
 
         user = User.query.filter_by(username=username).first()
         if user and user.check_password(password):
+            logAction(username, "Login", "Login Successful")
+
             session["user"] = user.username
             flash("Login successful!", "success")
             return redirect(url_for("hub.hub"))
         else:
+            logAction(username, "Registration", "Login unsuccessful")
+
             flash("Invalid username or password.", "error")
 
     return render_template("login.html")

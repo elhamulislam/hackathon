@@ -19,7 +19,7 @@ def login():
             flash("Login successful!", "success")
             return redirect(url_for("hub.hub"))
         else:
-            logAction(username, "Registration", "Login unsuccessful")
+            logAction(username, "Login", "Login unsuccessful")
 
             flash("Invalid username or password.", "error")
 

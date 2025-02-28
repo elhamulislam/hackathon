@@ -16,6 +16,11 @@ def register():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
+        passwordVerify = request.form.get("passwordVerify")
+
+        if(password != passwordVerify):
+            flash("Passwords do not match. Please try again.", "error")
+            return redirect(url_for("register.register"))
         
         recaptcha_response = request.form.get("g-recaptcha-response")
 

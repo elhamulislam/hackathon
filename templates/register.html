@@ -38,6 +38,9 @@
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" placeholder="Create a password" required>
         
+        <label for="passwordVerify">Verify Password:</label>
+        <input type="password" id="passwordVerify" name="passwordVerify" placeholder="Re-Enter Password" required>
+
         <label for="captcha">Enter CAPTCHA:</label>
         <div class="captcha-box">
           <img src="{{ url_for('captcha.get_captcha') }}" alt="CAPTCHA" class="captcha-image">

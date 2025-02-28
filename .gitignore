@@ -3,4 +3,4 @@ __pycache__/
 *.pyc
 .venv/
 venv/
-instance/boko_hacks.db
+ActionLogs.json
